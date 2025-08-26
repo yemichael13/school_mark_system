@@ -10,7 +10,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  
   text-align: center;
   padding: 20px;
 }
@@ -21,28 +20,6 @@
   z-index: -1;
 }
 
-.header {
-  position: absolute;
-  width: 100%;
-  height: 50px;
-  top: 0;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(2px);
-  border: 1px solid black;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding-left: 8px;
-}
-.header img {
-  width: 4%;
-  opacity: 0.85;
-  align-self: center;
-  margin: 0;
-}
-.login-container{
-  top: 50px;
-}
 .login-text {
   position: static;
   width: 100%;
@@ -51,21 +28,24 @@
   align-items: center;
   justify-content: center;
   z-index: 1;
+  margin-bottom: 0.5rem;
 }
+
 .login-text h1 {
   font-size: 4rem;
   font-weight: 600;
   color: black;
-  top: 0;
   margin-bottom: 10px;
   font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
+
 .login-text h2 {
   font-size: 2rem;
   font-weight: 400;
   color: black;
   font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 }
+
 .login-form {
   position: static;
   width: min(360px, 90%);
@@ -73,28 +53,40 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  border: 1px solid #0099f9;
+  box-shadow: 0 0 10px #0099f9;
   border-radius: 1rem;
   padding: 20px;
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(2px);
   z-index: 1;
 }
-.login-form h1{
+
+.login-form h1 {
   color: #0099f9;
   font-size: 2rem;
+  margin-bottom: 1.5rem;
 }
-.login-form input{
+
+.login-form input {
+  width: 100%;
+  padding: 12px;
   margin-bottom: 1.5rem;
   text-align: center;
   border-radius: 0.5rem;
   font-size: 1rem;
+  border: 1px solid #ddd;
+  outline: none;
 }
-.login-form button{
+
+.login-form input:focus {
+  border-color: #0099f9;
+  box-shadow: 0 0 5px rgba(0, 153, 249, 0.3);
+}
+
+.login-form button {
   width: 50%;
   color: white;
   font-size: 1.5rem;
-  border: #0099f9;
   background-color: #0099f9;
   padding: 0.5rem;
   border-radius: 0.5rem;
@@ -103,13 +95,15 @@
   transition: 0.2s ease;
   border: 1px solid white;
 }
- .login-form button:hover{
-   border: 1px solid #0099f9;
-   background-color: white;
-   color: #0099f9;
- }
- .login-form button:active{
-   background-color: #0099f9;
-   color: white;
- }
+
+.login-form button:hover {
+  border: 1px solid #0099f9;
+  background-color: white;
+  color: #0099f9;
+}
+
+.login-form button:active {
+  background-color: #0099f9;
+  color: white;
+}
 

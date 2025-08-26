@@ -1,9 +1,8 @@
 import React, {useState} from "react";
 import {Link } from "react-router-dom";
-import logo from "./assets/logo.png";
+import Navbar from "./components/Navbar";
 import DotGrid from "./assets/DotGrid";
 import "./App.css";
-
 
 const Login = () => {
   return (
@@ -23,25 +22,22 @@ const Login = () => {
           />
         </div>
       </div>
-      <div className="header">
-        <img src={logo} alt="logo" />
+      <Navbar />
+      <div className="login-text">
+        <h1>DEGNETU ACADEMY</h1>
+        <h2>Students Mark Management System</h2>
       </div>
-        <div className="login-text">
-          <h1>DEGNETU ACADEMY</h1>
-          <h2>Students Mark Management System</h2>
-        </div>
-        <div className="login-form">
-          <form>
-            <h1>Login</h1>
-            <input type="text" id="username" name="username" placeholder="username" />
-            <br />
-            <input type="password" id="password" name="password" placeholder="password" />
-            <br />
-            <button type="submit">Login</button>
-            
-          </form>
-        </div>
-      
+      <div className="login-form">
+        <form>
+          <h1>Login</h1>
+          <input type="text" id="username" name="username" placeholder="username" />
+          <br />
+          <input type="password" id="password" name="password" placeholder="password" />
+          <br />
+          <Link to="/TeacherDashboard"><button type="submit">Login</button></Link>
+          
+        </form>
+      </div>
     </div>
   )
 }
