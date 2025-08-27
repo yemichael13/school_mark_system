@@ -16,13 +16,13 @@
 .back{
     position: absolute;
     top: 10px;
-    right: 20px;
+    left: 2rem;
     width: auto;
 }
 .back button{
     width: auto;
     display: flex;
-    align-self: self-end;
+    align-self: self-start;
     cursor: pointer;
     border-radius: 0.3rem;
     transition: 0.2s ease;
@@ -77,4 +77,14 @@
 
 .teacherNav button:hover{
     transform: translateY(-5px);
+}
+.teacherNav .btn3{
+    background-color: red;
+    color: white;
+    font-weight: bold;
+    align-items: center;
+}
+.teacherNav .btn3 img{
+    width: 1.5rem;
+    align-self: center;
 }

@@ -2,7 +2,8 @@ import React, {useState} from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import DotGrid from "../assets/DotGrid";
-import back from "../assets/back.png"
+import back from "../assets/back.png";
+import logout from "../assets/logout.png";
 import "./TeacherDashboard.css"
 
 const TeacherDashboard = () => {
@@ -36,9 +37,9 @@ const TeacherDashboard = () => {
                 <h3>What do you want to do today?</h3>
                 <div className="teacherNav">
                     
-                    <Link to=""><button className="btn1">Students Overview</button></Link>
-                    <Link to=""><button className="btn2">Mark Entry & Calculation</button></Link>
-                    <Link to=""><button className="btn3">Profile</button></Link>
+                    <Link to="/StudOverview"><button className="btn1">Students Overview</button></Link>
+                    <Link to="/MarkEntry"><button className="btn2">Mark Entry & Calculation</button></Link>
+                    <Link to="/"><button className="btn3"><img src={ logout } alt="logout" />Logout</button></Link>
                 </div>
             </section>
         </div>

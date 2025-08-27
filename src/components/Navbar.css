@@ -8,12 +8,14 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    padding-left: 8px;
+    justify-content: flex-end;
+    padding-right: 1rem;
   }
+
   .navbar img {
     width: 4%;
     opacity: 0.85;
     align-self: center;
     margin: 0;
+    margin-right: 2rem;
   }

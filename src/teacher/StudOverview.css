@@ -1,0 +1,206 @@
+.back{
+    position: absolute;
+    top: 10px;
+    left: 2rem;
+    width: auto;
+}
+.back button{
+    width: auto;
+    display: flex;
+    align-self: self-start;
+    cursor: pointer;
+    border-radius: 0.3rem;
+    transition: 0.2s ease;
+}
+.back button:hover {
+    padding: 0.1rem;
+  }
+  
+
+.back img{
+    width: 2rem;
+}
+.overviewContainer{
+    position: relative;
+    max-height: 100vh;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    top: 50px;
+    padding: 0.5 rem;
+}
+
+/* StudOverview layout */
+.overviewGrid{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    width: 95%;
+    margin-top: 5rem;
+    border: 1px solid black;
+    height: 100%;
+    padding: 1rem;
+    border-radius: 1rem;
+}
+.overviewGrid.withSidebar{
+    margin-left: 8rem;
+    width: 85%;
+    transition: transform 0.2s ease; /* leave space for fixed sidebar */
+}
+.overviewGrid.fullWidth{
+    margin-left: 3rem;
+    width: 90%;
+    transition: transform 0.2s ease; /* leave space just for toggle button */
+}
+.sidebar{
+    position: fixed;
+    top: 8rem; /* below navbar/back button area */
+    left: 0;
+    width: 5rem;
+    height: 60%;
+    text-align: left;
+    background-color: whitesmoke;
+    border: 1px solid #6b7280;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 1rem 1rem 2rem 1rem;
+    color: black;
+    
+}
+.sidebar.hidden{ transform: translateX(-100%); }
+.sidebar.visible{ transform: translateX(0); }
+.sidebar{ transition: transform 0.2s ease; }
+
+/* Hide button inside sidebar (top-right) */
+.sidebarHideBtn{
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+.sidebarHideBtn img{ width: 15px; height: 15px; }
+.sidebarShowBtn img{ width: 15px; height: 15px; }
+
+.classList{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 1.5rem;
+    color: black;
+}
+
+.classBtn{
+    background: transparent;
+    border: none;
+    padding: 0.25rem 0;
+    cursor: pointer;
+    color: rgb(20, 75, 255);
+    position: relative;
+}
+
+.classBtn.active{
+    font-weight: bold;
+}
+
+.studentsPanel{
+    text-align: left;
+}
+
+.studentsList{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.studentItem{
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.studentRow{
+    display: flex;
+    justify-content: space-between;
+}
+
+.studentClass{
+    color: #6b7280;
+}
+
+/* Toggle button that sits near the left edge */
+.sidebarToggle{
+    position: fixed;
+    top: 80px;
+    left: 8px;
+    z-index: 10;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+}
+.sidebarToggle img{ width: 24px; height: 24px; }
+.sidebarToggle.atSidebar{ left: 250px; }
+.sidebarToggle.atEdge{ left: 8px; }
+
+/* Reopen button when sidebar is hidden */
+.sidebarReopen{
+    position: fixed;
+    top: calc(8rem + 0.5rem); /* align with sidebarHideBtn vertically */
+    left: 0.5rem; /* far left */
+    z-index: 10;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+.sidebarReopen img{ width: 24px; height: 24px; }
+
+/* Sidebar header and menu styles to match provided structure */
+.sidebar-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+.sidebar-header .title{
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+}
+.header-buttons{ display: flex; gap: 0.5rem; }
+.nightmode, .sidebar-toggle{
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.classBtn:hover{
+    background-color: rgba(0, 123, 255, 0.1);
+    border-radius: 1rem;
+    
+}
+.classLabel{
+    position: relative;
+    display: inline-block;
+}
+.classLabel::after{
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    width: 0;
+    height: 2px;
+    background: #6580f4;
+    transition: width 0.3s ease;
+}
+.classBtn:hover .classLabel::after{
+    width: 100%;
+    left: 0;
+    background: #6580f4;
+}
