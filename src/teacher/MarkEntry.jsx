@@ -214,6 +214,7 @@ const MarkEntry = () => {
                     </div>
                 </div>
             </section>
+            
         </div>
     )
 }

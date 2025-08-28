@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import {Link } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import DotGrid from "./assets/DotGrid";
+import Footer from "./components/Footer";
 import "./App.css";
 
 const Login = () => {
@@ -35,9 +36,10 @@ const Login = () => {
           <input type="password" id="password" name="password" placeholder="password" />
           <br />
           <Link to="/TeacherDashboard"><button type="submit">Login</button></Link>
-          
+          <Link to="/AdminDashboard">Admin</Link>
         </form>
       </div>
+      <Footer />
     </div>
   )
 }

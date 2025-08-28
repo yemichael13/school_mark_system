@@ -118,6 +118,7 @@ const StudOverview = () => {
                     </div>
                 </div>
             </section>
+            
         </div>
     )
 }

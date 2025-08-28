@@ -1,0 +1,68 @@
+/* Reuse overview layout from StudOverview for visual consistency */
+.manageStudents .overviewContainer{ min-height: 100vh; }
+
+/* Header inside students panel */
+.panelHeader{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Buttons */
+.primaryBtn{
+    background-color: #2563eb;
+    color: #fff;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.4rem;
+    cursor: pointer;
+}
+.secondaryBtn{
+    background-color: #e5e7eb;
+    color: #111827;
+    border: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.4rem;
+    cursor: pointer;
+}
+.dangerBtn{
+    background-color: #ef4444;
+    color: #fff;
+    border: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.4rem;
+    cursor: pointer;
+}
+.rowRight{ display: flex; align-items: center; gap: 0.75rem; }
+.rowActions{ display: flex; align-items: center; gap: 0.4rem; }
+
+/* Modal */
+.modalOverlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+.modalContent{
+    background: #fff;
+    color: #111827;
+    width: 95%;
+    max-width: 420px;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+.modalForm{ display: flex; flex-direction: column; gap: 0.75rem; }
+.modalForm h3{ margin: 0 0 0.25rem 0; }
+.modalForm label{ display: flex; flex-direction: column; gap: 0.25rem; text-align: left; }
+.modalForm input, .modalForm select{
+    padding: 0.5rem 0.6rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.4rem;
+}
+.modalActions{ display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.5rem; }
