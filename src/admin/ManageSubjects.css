@@ -3,9 +3,7 @@
     min-height: 100vh;
     justify-content: flex-start;
 }
-.overviewGrid{
-    top: 3rem;
-}
+
 
 /* Optional: ensure grid is visible even when mostly empty */
 .manageSubjects .overviewGrid{
