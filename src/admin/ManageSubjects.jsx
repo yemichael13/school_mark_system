@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import back from "../assets/back.png";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -7,6 +7,7 @@ import show from "../assets/show.png";
 import "../teacher/StudOverview.css";
 import "./ManageStudents.css";
 import "./ManageSubjects.css";
+import api from "../api/client";
 
 function Sidebar({ classes, selectedClass, onSelect, isVisible, onHide }){
     return (
@@ -51,15 +52,33 @@ const ManageSubjects = () =>{
 
     const [selectedClass, setSelectedClass] = useState('KG 1');
     const [isSidebarVisible, setIsSidebarVisible] = useState(false);
-    const [classToSubjects, setClassToSubjects] = useState({
-        'KG 1': ['English', 'Math'],
-        'KG 2': ['English', 'Math', 'Art'],
-        'KG 3': ['English', 'Math', 'Drawing'],
-        'Grade 1': ['English', 'Math', 'EVS'],
-        'Grade 2': ['English', 'Math', 'Science'],
-        'Grade 3': ['English', 'Math', 'Science', 'ICT'],
-        'Grade 4': ['English', 'Math', 'Science', 'ICT', 'Civic'],
-    });
+    const [classToSubjects, setClassToSubjects] = useState({});
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        (async () => {
+            setLoading(true);
+            setError("");
+            try {
+                const res = await api.get('/admin/subjects');
+                // Assuming backend returns flat list of subjects with name and class
+                const list = res.data || [];
+                const map = {};
+                classes.forEach(cls => { map[cls] = []; });
+                list.forEach(s => {
+                    const cls = s.class || 'Grade 1';
+                    if (!map[cls]) map[cls] = [];
+                    map[cls].push(s.name);
+                });
+                setClassToSubjects(map);
+            } catch (err) {
+                setError(err.response?.data?.error || 'Failed to load subjects');
+            } finally {
+                setLoading(false);
+            }
+        })();
+    }, []);
 
     const subjects = useMemo(() => classToSubjects[selectedClass] || [], [classToSubjects, selectedClass]);
 
@@ -87,25 +106,33 @@ const ManageSubjects = () =>{
     }
     function closeModal(){ setIsModalOpen(false); }
 
-    function handleSubmit(e){
+    async function handleSubmit(e){
         e.preventDefault();
-        if(modalMode === 'add'){
-            setClassToSubjects(prev => ({
-                ...prev,
-                [selectedClass]: [...(prev[selectedClass] || []), formSubject.trim()].filter(Boolean)
-            }));
-        }else if(modalMode === 'update'){
-            setClassToSubjects(prev => ({
-                ...prev,
-                [selectedClass]: (prev[selectedClass] || []).map(s => s === editingSubject ? formSubject.trim() : s)
-            }));
-        }else if(modalMode === 'delete'){
-            setClassToSubjects(prev => ({
-                ...prev,
-                [selectedClass]: (prev[selectedClass] || []).filter(s => s !== editingSubject)
-            }));
+        try {
+            if(modalMode === 'add'){
+                const res = await api.post('/admin/subjects', { name: formSubject.trim(), class: selectedClass });
+                setClassToSubjects(prev => ({
+                    ...prev,
+                    [selectedClass]: [...(prev[selectedClass] || []), formSubject.trim()].filter(Boolean)
+                }));
+            }else if(modalMode === 'update'){
+                // This assumes unique subject per class and we need an id; as a fallback we don't have it here
+                await api.put(`/admin/subjects/${encodeURIComponent(editingSubject)}`, { name: formSubject.trim(), class: selectedClass });
+                setClassToSubjects(prev => ({
+                    ...prev,
+                    [selectedClass]: (prev[selectedClass] || []).map(s => s === editingSubject ? formSubject.trim() : s)
+                }));
+            }else if(modalMode === 'delete'){
+                await api.delete(`/admin/subjects/${encodeURIComponent(editingSubject)}`);
+                setClassToSubjects(prev => ({
+                    ...prev,
+                    [selectedClass]: (prev[selectedClass] || []).filter(s => s !== editingSubject)
+                }));
+            }
+            setIsModalOpen(false);
+        } catch (err) {
+            setError(err.response?.data?.error || 'Operation failed');
         }
-        setIsModalOpen(false);
     }
 
     return(
@@ -143,6 +170,8 @@ const ManageSubjects = () =>{
                             <h3>{selectedClass} Subjects</h3>
                             <button className="primaryBtn" onClick={openAddModal}>Add Subject</button>
                         </div>
+                        {loading && <p>Loading...</p>}
+                        {error && <p style={{ color: 'red' }}>{error}</p>}
                         <ul className="studentsList">
                             {subjects.map((subject, idx) => (
                                 <li key={`${subject}-${idx}`} className="studentItem">

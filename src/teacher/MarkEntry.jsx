@@ -1,10 +1,11 @@
-import React, {useState, useMemo} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import { Link } from "react-router-dom";
 import "./MarkEntry.css";
 import Navbar from "../components/Navbar";
 import back from "../assets/back.png";
 import hide from "../assets/hide.png";
 import show from "../assets/show.png";
+import api from "../api/client";
 
 function Sidebar({ classes, selectedClass, onSelect, isVisible, onHide }){
     return (
@@ -65,17 +66,29 @@ const MarkEntry = () => {
         'Grade 4': ['Math', 'English', 'Science', 'Civics'],
     };
 
-    const students = [
-        { id: 1, name: 'Abel Bekele', class: 'KG 1' },
-        { id: 2, name: 'Sara Teshome', class: 'KG 1' },
-        { id: 3, name: 'Meklit Alemu', class: 'KG 2' },
-        { id: 4, name: 'Yonatan Girma', class: 'KG 3' },
-        { id: 5, name: 'Lily Solomon', class: 'Grade 1' },
-        { id: 6, name: 'Noah Hailu', class: 'Grade 1' },
-        { id: 7, name: 'Hanna Daniel', class: 'Grade 2' },
-        { id: 8, name: 'Fikir Tesfaye', class: 'Grade 3' },
-        { id: 9, name: 'Beti Meron', class: 'Grade 4' },
-    ];
+    const [students, setStudents] = useState([]);
+    const [subjects, setSubjects] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        (async () => {
+            setLoading(true);
+            setError("");
+            try {
+                const [studentsRes, subjectsRes] = await Promise.all([
+                    api.get('/admin/students'),
+                    api.get('/admin/subjects')
+                ]);
+                setStudents(studentsRes.data || []);
+                setSubjects(subjectsRes.data || []);
+            } catch (err) {
+                setError(err.response?.data?.error || 'Failed to load data');
+            } finally {
+                setLoading(false);
+            }
+        })();
+    }, []);
 
     const [selectedClass, setSelectedClass] = useState('All');
     const [isSidebarVisible, setIsSidebarVisible] = useState(true);
@@ -88,24 +101,20 @@ const MarkEntry = () => {
         selectedClass === 'All' ? students : students.filter((s) => s.class === selectedClass)
     ), [selectedClass]);
 
-    const subjects = useMemo(() => {
-        if (selectedClass === 'All') {
-            // Union of all subjects to display something sensible
-            const uniq = new Set();
-            Object.values(subjectsByClass).forEach(arr => arr.forEach(s => uniq.add(s)));
-            return Array.from(uniq);
-        }
-        return subjectsByClass[selectedClass] || [];
-    }, [selectedClass]);
+    const availableSubjects = useMemo(() => {
+        // For now, show all subjects regardless of class
+        // In a real app, you might want to filter by class
+        return subjects;
+    }, [subjects]);
 
-    const handleMarkChange = (studentId, subject, value) => {
+    const handleMarkChange = (studentId, subjectId, value) => {
         const numeric = value === '' ? '' : Number(value);
         if (value !== '' && Number.isNaN(numeric)) return;
         setMarks(prev => ({
             ...prev,
             [studentId]: {
                 ...(prev[studentId] || {}),
-                [subject]: value === '' ? '' : numeric,
+                [subjectId]: value === '' ? '' : numeric,
             },
         }));
     };
@@ -114,12 +123,12 @@ const MarkEntry = () => {
         const newResults = {};
         const totals = [];
         filteredStudents.forEach(student => {
-            const subjectScores = subjects.map(subj => {
-                const val = marks[student.id]?.[subj];
+            const subjectScores = availableSubjects.map(subj => {
+                const val = marks[student.id]?.[subj.id];
                 return typeof val === 'number' ? val : 0;
             });
             const sum = subjectScores.reduce((a, b) => a + b, 0);
-            const average = subjects.length > 0 ? Number((sum / subjects.length).toFixed(2)) : 0;
+            const average = availableSubjects.length > 0 ? Number((sum / availableSubjects.length).toFixed(2)) : 0;
             totals.push({ studentId: student.id, sum });
             newResults[student.id] = { sum, average, rank: 0 };
         });
@@ -138,6 +147,26 @@ const MarkEntry = () => {
         });
         setResults(newResults);
     };
+
+    async function persistMarks(term = 'Term1'){
+        try {
+            const payload = [];
+            Object.entries(marks).forEach(([studentId, subjToMark]) => {
+                Object.entries(subjToMark).forEach(([subjectId, mark]) => {
+                    if (typeof mark === 'number') {
+                        payload.push({ student_id: Number(studentId), subject_id: Number(subjectId), term, mark });
+                    }
+                });
+            });
+            // naive: send sequentially to match API shape
+            for (const item of payload) {
+                await api.post('/teacher/marks', item);
+            }
+            setError(''); // Clear any previous errors
+        } catch (err) {
+            setError(err.response?.data?.error || 'Failed to save marks');
+        }
+    }
 
     return(
         <div className="studOverview">
@@ -177,8 +206,8 @@ const MarkEntry = () => {
                                 <thead>
                                     <tr>
                                         <th>Student</th>
-                                        {subjects.map(subj => (
-                                            <th key={subj}>{subj}</th>
+                                        {availableSubjects.map(subj => (
+                                            <th key={subj.id}>{subj.name}</th>
                                         ))}
                                         <th>Sum</th>
                                         <th>Average</th>
@@ -189,14 +218,14 @@ const MarkEntry = () => {
                                     {filteredStudents.map(student => (
                                         <tr key={student.id}>
                                             <td className="studentCell">{student.name}</td>
-                                            {subjects.map(subj => (
-                                                <td key={subj}>
+                                            {availableSubjects.map(subj => (
+                                                <td key={subj.id}>
                                                     <input
                                                         type="number"
                                                         min="0"
                                                         className="markInput"
-                                                        value={marks[student.id]?.[subj] ?? ''}
-                                                        onChange={(e) => handleMarkChange(student.id, subj, e.target.value)}
+                                                        value={marks[student.id]?.[subj.id] ?? ''}
+                                                        onChange={(e) => handleMarkChange(student.id, subj.id, e.target.value)}
                                                     />
                                                 </td>
                                             ))}
@@ -207,6 +236,11 @@ const MarkEntry = () => {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                        {loading && <p>Loading...</p>}
+                        {error && <p style={{ color: 'red' }}>{error}</p>}
+                        <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+                            <button type="button" className="calcBtn" onClick={persistMarks}>Save Marks</button>
                         </div>
                         {selectedClass === 'All' && (
                             <p className="hint">Tip: select a specific class from the sidebar to see its subjects.</p>

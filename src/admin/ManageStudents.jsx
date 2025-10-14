@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import back from "../assets/back.png";
@@ -6,6 +6,7 @@ import hide from "../assets/hide.png";
 import show from "../assets/show.png";
 import "../teacher/StudOverview.css";
 import "./ManageStudents.css";
+import api from "../api/client";
 
 function Sidebar({ classes, selectedClass, onSelect, isVisible, onHide }){
     return (
@@ -45,17 +46,7 @@ function Sidebar({ classes, selectedClass, onSelect, isVisible, onHide }){
     );
 }
 
-const initialStudents = [
-    { id: 1, name: 'Abel Bekele', class: 'KG 1' },
-    { id: 2, name: 'Sara Teshome', class: 'KG 1' },
-    { id: 3, name: 'Meklit Alemu', class: 'KG 2' },
-    { id: 4, name: 'Yonatan Girma', class: 'KG 3' },
-    { id: 5, name: 'Lily Solomon', class: 'Grade 1' },
-    { id: 6, name: 'Noah Hailu', class: 'Grade 1' },
-    { id: 7, name: 'Hanna Daniel', class: 'Grade 2' },
-    { id: 8, name: 'Fikir Tesfaye', class: 'Grade 3' },
-    { id: 9, name: 'Beti Meron', class: 'Grade 4' },
-];
+const initialStudents = [];
 
 const ManageStudents = () => {
     const classes = [
@@ -69,6 +60,8 @@ const ManageStudents = () => {
     ];
 
     const [students, setStudents] = useState(initialStudents);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
     const [selectedClass, setSelectedClass] = useState('All');
     const [isSidebarVisible, setIsSidebarVisible] = useState(true);
 
@@ -110,17 +103,39 @@ const ManageStudents = () => {
         setIsModalOpen(false);
     }
 
-    function handleSubmit(e) {
+    useEffect(() => {
+        (async () => {
+            setLoading(true);
+            setError("");
+            try {
+                const res = await api.get('/admin/students');
+                setStudents(res.data || []);
+            } catch (err) {
+                setError(err.response?.data?.error || 'Failed to load students');
+            } finally {
+                setLoading(false);
+            }
+        })();
+    }, []);
+
+    async function handleSubmit(e) {
         e.preventDefault();
-        if (modalMode === 'add') {
-            const nextId = students.length ? Math.max(...students.map(s => s.id)) + 1 : 1;
-            setStudents(prev => ([...prev, { id: nextId, name: formName.trim(), class: formClass }]));
-        } else if (modalMode === 'update' && editingStudent) {
-            setStudents(prev => prev.map(s => s.id === editingStudent.id ? { ...s, name: formName.trim(), class: formClass } : s));
-        } else if (modalMode === 'delete' && editingStudent) {
-            setStudents(prev => prev.filter(s => s.id !== editingStudent.id));
+        try {
+            if (modalMode === 'add') {
+                const res = await api.post('/admin/students', { name: formName.trim(), class: formClass });
+                const created = { id: res.data?.id, name: formName.trim(), class: formClass };
+                setStudents(prev => ([...prev, created]));
+            } else if (modalMode === 'update' && editingStudent) {
+                await api.put(`/admin/students/${editingStudent.id}`, { name: formName.trim(), class: formClass });
+                setStudents(prev => prev.map(s => s.id === editingStudent.id ? { ...s, name: formName.trim(), class: formClass } : s));
+            } else if (modalMode === 'delete' && editingStudent) {
+                await api.delete(`/admin/students/${editingStudent.id}`);
+                setStudents(prev => prev.filter(s => s.id !== editingStudent.id));
+            }
+            setIsModalOpen(false);
+        } catch (err) {
+            setError(err.response?.data?.error || 'Operation failed');
         }
-        setIsModalOpen(false);
     }
 
     return(
@@ -158,6 +173,8 @@ const ManageStudents = () => {
                             <h3>{selectedClass === 'All' ? 'All Students' : `${selectedClass} Students`}</h3>
                             <button className="primaryBtn" onClick={openAddModal}>Add Student</button>
                         </div>
+                        {loading && <p>Loading...</p>}
+                        {error && <p style={{ color: 'red' }}>{error}</p>}
                         <ul className="studentsList">
                             {filteredStudents.map((student) => (
                                 <li key={student.id} className="studentItem">

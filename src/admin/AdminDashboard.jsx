@@ -2,11 +2,20 @@ import React from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import DotGrid from "../assets/DotGrid";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logout from "../assets/logout.png";
+import { useAuth } from "../AuthContext";
 import "./AdminDashboard.css";
 
 const AdminDashboard = () => {
+    const navigate = useNavigate();
+    const { logout } = useAuth();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+    };
+
    return(
     <div className="adminDashboard">
         <div className="background">
@@ -32,7 +41,7 @@ const AdminDashboard = () => {
                 <Link to="/ManageStudents"><button className="btn1">Manage Students</button></Link>
                 <Link to="/ManageTeachers"><button className="btn2">Manage Teachers</button></Link>
                 <Link to="/ManageSubjects"><button className="btn3">Manage Subjects</button></Link>
-                <Link to="/"><button className="btn4"><img src={logout} alt="logout" />Logout</button></Link>
+                <button className="btn4" onClick={handleLogout}><img src={logout} alt="logout" />Logout</button>
             </div>
         </section>
         <Footer />

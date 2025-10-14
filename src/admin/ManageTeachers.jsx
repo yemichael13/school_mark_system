@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import back from "../assets/back.png";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -7,6 +7,7 @@ import show from "../assets/show.png";
 import "../teacher/StudOverview.css";
 import "./ManageStudents.css";
 import "./ManageTeachers.css";
+import api from "../api/client";
 
 function Sidebar({ classes, selectedClass, onSelect, isVisible, onHide }){
     return (
@@ -46,11 +47,7 @@ function Sidebar({ classes, selectedClass, onSelect, isVisible, onHide }){
     );
 }
 
-const initialTeachers = [
-    { id: 1, name: 'Mr. Tesfaye', class: 'KG 1' },
-    { id: 2, name: 'Ms. Aster', class: 'KG 2' },
-    { id: 3, name: 'Mr. Dawit', class: 'Grade 1' },
-];
+const initialTeachers = [];
 
 const ManageTeachers = () =>{
     const classes = [
@@ -64,6 +61,8 @@ const ManageTeachers = () =>{
     ];
 
     const [teachers, setTeachers] = useState(initialTeachers);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
     const [selectedClass, setSelectedClass] = useState('All');
     const [isSidebarVisible, setIsSidebarVisible] = useState(true);
 
@@ -98,17 +97,40 @@ const ManageTeachers = () =>{
     }
     function closeModal(){ setIsModalOpen(false); }
 
-    function handleSubmit(e){
+    useEffect(() => {
+        (async () => {
+            setLoading(true);
+            setError("");
+            try {
+                const res = await api.get('/admin/teachers');
+                setTeachers(res.data || []);
+            } catch (err) {
+                setError(err.response?.data?.error || 'Failed to load teachers');
+            } finally {
+                setLoading(false);
+            }
+        })();
+    }, []);
+
+    async function handleSubmit(e){
         e.preventDefault();
-        if(modalMode === 'add'){
-            const nextId = teachers.length ? Math.max(...teachers.map(t => t.id)) + 1 : 1;
-            setTeachers(prev => ([...prev, { id: nextId, name: formName.trim(), class: formClass }]));
-        }else if(modalMode === 'update' && editingTeacher){
-            setTeachers(prev => prev.map(t => t.id === editingTeacher.id ? { ...t, name: formName.trim(), class: formClass } : t));
-        }else if(modalMode === 'delete' && editingTeacher){
-            setTeachers(prev => prev.filter(t => t.id !== editingTeacher.id));
+        try {
+            if(modalMode === 'add'){
+                const res = await api.post('/admin/teachers', { name: formName.trim(), email: `${Date.now()}@school.com`, password: 'password123', class: formClass });
+                const createdId = res.data?.id;
+                const created = { id: createdId, name: formName.trim(), class: formClass };
+                setTeachers(prev => ([...prev, created]));
+            }else if(modalMode === 'update' && editingTeacher){
+                await api.put(`/admin/teachers/${editingTeacher.id}`, { name: formName.trim(), class: formClass });
+                setTeachers(prev => prev.map(t => t.id === editingTeacher.id ? { ...t, name: formName.trim(), class: formClass } : t));
+            }else if(modalMode === 'delete' && editingTeacher){
+                await api.delete(`/admin/teachers/${editingTeacher.id}`);
+                setTeachers(prev => prev.filter(t => t.id !== editingTeacher.id));
+            }
+            setIsModalOpen(false);
+        } catch (err) {
+            setError(err.response?.data?.error || 'Operation failed');
         }
-        setIsModalOpen(false);
     }
 
     return(
@@ -146,6 +168,8 @@ const ManageTeachers = () =>{
                             <h3>{selectedClass === 'All' ? 'All Teachers' : `${selectedClass} Teachers`}</h3>
                             <button className="primaryBtn" onClick={openAddModal}>Add Teacher</button>
                         </div>
+                        {loading && <p>Loading...</p>}
+                        {error && <p style={{ color: 'red' }}>{error}</p>}
                         <ul className="studentsList">
                             {filteredTeachers.map((teacher) => (
                                 <li key={teacher.id} className="studentItem">

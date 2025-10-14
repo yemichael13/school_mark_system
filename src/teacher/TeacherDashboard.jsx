@@ -1,12 +1,21 @@
 import React, {useState} from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import DotGrid from "../assets/DotGrid";
 import logout from "../assets/logout.png";
+import { useAuth } from "../AuthContext";
 import "./TeacherDashboard.css"
 
 const TeacherDashboard = () => {
+    const navigate = useNavigate();
+    const { logout } = useAuth();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+    };
+
     return(
         <div className="teacherDashboard">
             <div className="background">
@@ -34,7 +43,7 @@ const TeacherDashboard = () => {
                     
                     <Link to="/StudOverview"><button className="btn1">Students Overview</button></Link>
                     <Link to="/MarkEntry"><button className="btn2">Mark Entry & Calculation</button></Link>
-                    <Link to="/"><button className="btn3"><img src={ logout } alt="logout" />Logout</button></Link>
+                    <button className="btn3" onClick={handleLogout}><img src={ logout } alt="logout" />Logout</button>
                 </div>
             </section>
             <Footer />

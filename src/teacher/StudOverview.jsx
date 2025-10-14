@@ -1,10 +1,11 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import { Link } from "react-router-dom";
 import "./StudOverview.css";
 import Navbar from "../components/Navbar";
 import back from "../assets/back.png";
 import hide from "../assets/hide.png";
 import show from "../assets/show.png";
+import api from "../api/client";
 
 function Sidebar({ classes, selectedClass, onSelect, isVisible, onHide }){
     return (
@@ -55,20 +56,26 @@ const StudOverview = () => {
         'Grade 4',
     ];
 
-    const students = [
-        { id: 1, name: 'Abel Bekele', class: 'KG 1' },
-        { id: 2, name: 'Sara Teshome', class: 'KG 1' },
-        { id: 3, name: 'Meklit Alemu', class: 'KG 2' },
-        { id: 4, name: 'Yonatan Girma', class: 'KG 3' },
-        { id: 5, name: 'Lily Solomon', class: 'Grade 1' },
-        { id: 6, name: 'Noah Hailu', class: 'Grade 1' },
-        { id: 7, name: 'Hanna Daniel', class: 'Grade 2' },
-        { id: 8, name: 'Fikir Tesfaye', class: 'Grade 3' },
-        { id: 9, name: 'Beti Meron', class: 'Grade 4' },
-    ];
-
+    const [students, setStudents] = useState([]);
     const [selectedClass, setSelectedClass] = useState('All');
     const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        (async () => {
+            setLoading(true);
+            setError("");
+            try {
+                const res = await api.get('/admin/students');
+                setStudents(res.data || []);
+            } catch (err) {
+                setError(err.response?.data?.error || 'Failed to load students');
+            } finally {
+                setLoading(false);
+            }
+        })();
+    }, []);
 
     const filteredStudents = selectedClass === 'All'
         ? students
@@ -105,6 +112,8 @@ const StudOverview = () => {
                     
                     <div className="studentsPanel">
                         <h3>{selectedClass === 'All' ? 'All Students' : `${selectedClass} Students`}</h3>
+                        {loading && <p>Loading...</p>}
+                        {error && <p style={{ color: 'red' }}>{error}</p>}
                         <ul className="studentsList">
                             {filteredStudents.map((student) => (
                                 <li key={student.id} className="studentItem">
