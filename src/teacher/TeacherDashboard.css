@@ -72,6 +72,11 @@
     color: white;
     font-weight: bold;
     align-items: center;
+    width: 25%;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
 }
 .teacherNav .btn3 img{
     width: 1.5rem;

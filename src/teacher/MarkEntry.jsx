@@ -77,8 +77,8 @@ const MarkEntry = () => {
             setError("");
             try {
                 const [studentsRes, subjectsRes] = await Promise.all([
-                    api.get('/admin/students'),
-                    api.get('/admin/subjects')
+                    api.get('/teacher/students'),
+                    api.get('/teacher/subjects')
                 ]);
                 setStudents(studentsRes.data || []);
                 setSubjects(subjectsRes.data || []);

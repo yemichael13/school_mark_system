@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import DotGrid from "../assets/DotGrid";
-import logout from "../assets/logout.png";
+import Logout from "../assets/logout.png";
 import { useAuth } from "../AuthContext";
 import "./TeacherDashboard.css"
 
@@ -43,7 +43,7 @@ const TeacherDashboard = () => {
                     
                     <Link to="/StudOverview"><button className="btn1">Students Overview</button></Link>
                     <Link to="/MarkEntry"><button className="btn2">Mark Entry & Calculation</button></Link>
-                    <button className="btn3" onClick={handleLogout}><img src={ logout } alt="logout" />Logout</button>
+                    <button className="btn3" onClick={handleLogout}><img src={ Logout } alt="logout" />Logout</button>
                 </div>
             </section>
             <Footer />

@@ -67,7 +67,7 @@ const StudOverview = () => {
             setLoading(true);
             setError("");
             try {
-                const res = await api.get('/admin/students');
+                const res = await api.get('/teacher/students');
                 setStudents(res.data || []);
             } catch (err) {
                 setError(err.response?.data?.error || 'Failed to load students');
