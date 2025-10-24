@@ -35,3 +35,19 @@
     top: 50px;
     padding: 0.5 rem;
 }
+
+.teacherInfo{
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.teacherName{
+    font-weight: 600;
+    color: #111827;
+}
+
+.teacherEmail{
+    font-size: 0.875rem;
+    color: #6b7280;
+}

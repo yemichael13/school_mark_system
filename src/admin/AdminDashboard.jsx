@@ -41,6 +41,7 @@ const AdminDashboard = () => {
                 <Link to="/ManageStudents"><button className="btn1">Manage Students</button></Link>
                 <Link to="/ManageTeachers"><button className="btn2">Manage Teachers</button></Link>
                 <Link to="/ManageSubjects"><button className="btn3">Manage Subjects</button></Link>
+                <Link to="/ViewMarks"><button className="btn5">View Marks</button></Link>
                 <button className="btn4" onClick={handleLogout}><img src={Logout} alt="logout" />Logout</button>
             </div>
         </section>

@@ -70,24 +70,25 @@ const ManageTeachers = () =>{
     const [modalMode, setModalMode] = useState('add');
     const [editingTeacher, setEditingTeacher] = useState(null);
     const [formName, setFormName] = useState("");
-    const [formClass, setFormClass] = useState(classes[0]);
+    const [formEmail, setFormEmail] = useState("");
+    const [formPassword, setFormPassword] = useState("");
 
-    const filteredTeachers = useMemo(() => (
-        selectedClass === 'All' ? teachers : teachers.filter(t => t.class === selectedClass)
-    ), [selectedClass, teachers]);
+    const filteredTeachers = teachers; // No class filtering needed
 
     function openAddModal(){
         setModalMode('add');
         setEditingTeacher(null);
         setFormName("");
-        setFormClass(selectedClass !== 'All' ? selectedClass : classes[0]);
+        setFormEmail("");
+        setFormPassword("");
         setIsModalOpen(true);
     }
     function openUpdateModal(teacher){
         setModalMode('update');
         setEditingTeacher(teacher);
         setFormName(teacher.name);
-        setFormClass(teacher.class);
+        setFormEmail(teacher.email);
+        setFormPassword(""); // Don't pre-fill password
         setIsModalOpen(true);
     }
     function openDeleteModal(teacher){
@@ -116,13 +117,28 @@ const ManageTeachers = () =>{
         e.preventDefault();
         try {
             if(modalMode === 'add'){
-                const res = await api.post('/admin/teachers', { name: formName.trim(), email: `${Date.now()}@school.com`, password: 'password123', class: formClass });
+                const res = await api.post('/admin/teachers', { 
+                    name: formName.trim(), 
+                    email: formEmail.trim(), 
+                    password: formPassword || 'password123' 
+                });
                 const createdId = res.data?.id;
-                const created = { id: createdId, name: formName.trim(), class: formClass };
+                const created = { id: createdId, name: formName.trim(), email: formEmail.trim() };
                 setTeachers(prev => ([...prev, created]));
             }else if(modalMode === 'update' && editingTeacher){
-                await api.put(`/admin/teachers/${editingTeacher.id}`, { name: formName.trim(), class: formClass });
-                setTeachers(prev => prev.map(t => t.id === editingTeacher.id ? { ...t, name: formName.trim(), class: formClass } : t));
+                const updateData = { 
+                    name: formName.trim(), 
+                    email: formEmail.trim() 
+                };
+                if (formPassword) {
+                    updateData.password = formPassword;
+                }
+                await api.put(`/admin/teachers/${editingTeacher.id}`, updateData);
+                setTeachers(prev => prev.map(t => t.id === editingTeacher.id ? { 
+                    ...t, 
+                    name: formName.trim(), 
+                    email: formEmail.trim() 
+                } : t));
             }else if(modalMode === 'delete' && editingTeacher){
                 await api.delete(`/admin/teachers/${editingTeacher.id}`);
                 setTeachers(prev => prev.filter(t => t.id !== editingTeacher.id));
@@ -165,7 +181,7 @@ const ManageTeachers = () =>{
                 <div className={`overviewGrid ${isSidebarVisible ? 'withSidebar' : 'fullWidth'}`}>
                     <div className="studentsPanel">
                         <div className="panelHeader">
-                            <h3>{selectedClass === 'All' ? 'All Teachers' : `${selectedClass} Teachers`}</h3>
+                            <h3>All Teachers</h3>
                             <button className="primaryBtn" onClick={openAddModal}>Add Teacher</button>
                         </div>
                         {loading && <p>Loading...</p>}
@@ -174,9 +190,11 @@ const ManageTeachers = () =>{
                             {filteredTeachers.map((teacher) => (
                                 <li key={teacher.id} className="studentItem">
                                     <div className="studentRow">
-                                        <span>{teacher.name}</span>
+                                        <div className="teacherInfo">
+                                            <span className="teacherName">{teacher.name}</span>
+                                            <span className="teacherEmail">{teacher.email}</span>
+                                        </div>
                                         <div className="rowRight">
-                                            <span className="studentClass">{teacher.class}</span>
                                             <div className="rowActions">
                                                 <button className="secondaryBtn" onClick={() => openUpdateModal(teacher)}>Update</button>
                                                 <button className="dangerBtn" onClick={() => openDeleteModal(teacher)}>Delete</button>
@@ -205,12 +223,22 @@ const ManageTeachers = () =>{
                                         />
                                     </label>
                                     <label>
-                                        <span>Class</span>
-                                        <select value={formClass} onChange={(e) => setFormClass(e.target.value)}>
-                                            {classes.map(cls => (
-                                                <option key={cls} value={cls}>{cls}</option>
-                                            ))}
-                                        </select>
+                                        <span>Email</span>
+                                        <input
+                                            type="email"
+                                            value={formEmail}
+                                            onChange={(e) => setFormEmail(e.target.value)}
+                                            required
+                                        />
+                                    </label>
+                                    <label>
+                                        <span>Password {modalMode === 'update' && '(leave blank to keep current)'}</span>
+                                        <input
+                                            type="password"
+                                            value={formPassword}
+                                            onChange={(e) => setFormPassword(e.target.value)}
+                                            required={modalMode === 'add'}
+                                        />
                                     </label>
                                     <div className="modalActions">
                                         <button type="button" className="secondaryBtn" onClick={closeModal}>Cancel</button>

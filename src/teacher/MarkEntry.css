@@ -118,6 +118,35 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.headerControls{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.termSelector{
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.termSelector label{
+    font-weight: 500;
+    color: #374151;
+}
+
+.termSelect{
+    padding: 0.375rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    background: white;
+    font-size: 0.875rem;
+    min-width: 120px;
 }
 .calcBtn{
     background: #2563eb;
@@ -129,9 +158,16 @@
 }
 .calcBtn:hover{ background: #1d4ed8; }
 
-.tableWrap{ overflow-x: auto; }
+.tableWrap{ 
+    overflow-x: auto; 
+    max-width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
 .markTable{
     width: 100%;
+    min-width: 600px; /* Ensure minimum width for readability */
     border-collapse: collapse;
     background: #fff;
 }
@@ -139,18 +175,62 @@
     border: 1px solid #e5e7eb;
     padding: 0.5rem;
     text-align: left;
+    white-space: nowrap;
 }
 .markTable thead th{
     background: #f3f4f6;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
-.studentCell{ white-space: nowrap; font-weight: 600; }
+.studentCell{ 
+    white-space: nowrap; 
+    font-weight: 600; 
+    min-width: 120px;
+    max-width: 150px;
+}
 .markInput{
-    width: 5rem;
+    width: 4rem;
+    min-width: 60px;
     padding: 0.25rem;
     border: 1px solid #cbd5e1;
     border-radius: 0.25rem;
+    text-align: center;
 }
-.resultCell{ font-weight: 600; color: #111827; }
+.markInput:focus{
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+.resultCell{ 
+    font-weight: 600; 
+    color: #111827; 
+    text-align: center;
+    min-width: 60px;
+}
+
+.subjectHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.subjectHeader .subjectName {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #111827;
+}
+
+.subjectHeader .subjectCode {
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+}
 .hint{ margin-top: 0.5rem; color: #6b7280; font-size: 0.9rem; }
 
 .studentsList{

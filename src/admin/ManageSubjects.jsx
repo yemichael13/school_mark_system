@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import back from "../assets/back.png";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -50,86 +50,97 @@ const ManageSubjects = () =>{
         'Grade 4',
     ];
 
-    const [selectedClass, setSelectedClass] = useState('KG 1');
-    const [isSidebarVisible, setIsSidebarVisible] = useState(false);
-    const [classToSubjects, setClassToSubjects] = useState({});
+    const [subjects, setSubjects] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-
-    useEffect(() => {
-        (async () => {
-            setLoading(true);
-            setError("");
-            try {
-                const res = await api.get('/admin/subjects');
-                // Assuming backend returns flat list of subjects with name and class
-                const list = res.data || [];
-                const map = {};
-                classes.forEach(cls => { map[cls] = []; });
-                list.forEach(s => {
-                    const cls = s.class || 'Grade 1';
-                    if (!map[cls]) map[cls] = [];
-                    map[cls].push(s.name);
-                });
-                setClassToSubjects(map);
-            } catch (err) {
-                setError(err.response?.data?.error || 'Failed to load subjects');
-            } finally {
-                setLoading(false);
-            }
-        })();
-    }, []);
-
-    const subjects = useMemo(() => classToSubjects[selectedClass] || [], [classToSubjects, selectedClass]);
+    const [isSidebarVisible, setIsSidebarVisible] = useState(false);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState('add'); // add | update | delete
-    const [editingSubject, setEditingSubject] = useState("");
-    const [formSubject, setFormSubject] = useState("");
+    const [editingSubject, setEditingSubject] = useState(null);
+    const [formName, setFormName] = useState("");
+    const [formCode, setFormCode] = useState("");
+    const [formClasses, setFormClasses] = useState([]);
+
+    useEffect(() => {
+        loadSubjects();
+    }, []);
+
+    const loadSubjects = async () => {
+        setLoading(true);
+        setError("");
+        try {
+            const res = await api.get('/admin/subjects');
+            setSubjects(res.data || []);
+        } catch (err) {
+            setError(err.response?.data?.error || 'Failed to load subjects');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     function openAddModal(){
         setModalMode('add');
-        setEditingSubject("");
-        setFormSubject("");
+        setEditingSubject(null);
+        setFormName("");
+        setFormCode("");
+        setFormClasses([]);
         setIsModalOpen(true);
     }
+    
     function openUpdateModal(subject){
         setModalMode('update');
         setEditingSubject(subject);
-        setFormSubject(subject);
+        setFormName(subject.name);
+        setFormCode(subject.code);
+        setFormClasses(subject.classes ? subject.classes.split(',') : []);
         setIsModalOpen(true);
     }
+    
     function openDeleteModal(subject){
         setModalMode('delete');
         setEditingSubject(subject);
         setIsModalOpen(true);
     }
-    function closeModal(){ setIsModalOpen(false); }
+    
+    function closeModal(){ 
+        setIsModalOpen(false); 
+        setEditingSubject(null);
+        setFormName("");
+        setFormCode("");
+        setFormClasses([]);
+    }
+
+    const handleClassToggle = (className) => {
+        setFormClasses(prev => 
+            prev.includes(className) 
+                ? prev.filter(c => c !== className)
+                : [...prev, className]
+        );
+    };
 
     async function handleSubmit(e){
         e.preventDefault();
         try {
             if(modalMode === 'add'){
-                const res = await api.post('/admin/subjects', { name: formSubject.trim(), class: selectedClass });
-                setClassToSubjects(prev => ({
-                    ...prev,
-                    [selectedClass]: [...(prev[selectedClass] || []), formSubject.trim()].filter(Boolean)
-                }));
-            }else if(modalMode === 'update'){
-                // This assumes unique subject per class and we need an id; as a fallback we don't have it here
-                await api.put(`/admin/subjects/${encodeURIComponent(editingSubject)}`, { name: formSubject.trim(), class: selectedClass });
-                setClassToSubjects(prev => ({
-                    ...prev,
-                    [selectedClass]: (prev[selectedClass] || []).map(s => s === editingSubject ? formSubject.trim() : s)
-                }));
-            }else if(modalMode === 'delete'){
-                await api.delete(`/admin/subjects/${encodeURIComponent(editingSubject)}`);
-                setClassToSubjects(prev => ({
-                    ...prev,
-                    [selectedClass]: (prev[selectedClass] || []).filter(s => s !== editingSubject)
-                }));
+                await api.post('/admin/subjects', { 
+                    name: formName.trim(), 
+                    code: formCode.trim().toUpperCase(),
+                    classes: formClasses
+                });
+                await loadSubjects();
+            }else if(modalMode === 'update' && editingSubject){
+                await api.put(`/admin/subjects/${editingSubject.id}`, { 
+                    name: formName.trim(), 
+                    code: formCode.trim().toUpperCase(),
+                    classes: formClasses
+                });
+                await loadSubjects();
+            }else if(modalMode === 'delete' && editingSubject){
+                await api.delete(`/admin/subjects/${editingSubject.id}`);
+                await loadSubjects();
             }
-            setIsModalOpen(false);
+            closeModal();
         } catch (err) {
             setError(err.response?.data?.error || 'Operation failed');
         }
@@ -156,37 +167,39 @@ const ManageSubjects = () =>{
                     </button>
                 )}
 
-                <Sidebar
-                    classes={classes}
-                    selectedClass={selectedClass}
-                    onSelect={setSelectedClass}
-                    isVisible={isSidebarVisible}
-                    onHide={() => setIsSidebarVisible(false)}
-                />
-
                 <div className={`overviewGrid ${isSidebarVisible ? 'withSidebar' : 'fullWidth'}`}>
                     <div className="studentsPanel">
                         <div className="panelHeader">
-                            <h3>{selectedClass} Subjects</h3>
+                            <h3>Manage Subjects</h3>
                             <button className="primaryBtn" onClick={openAddModal}>Add Subject</button>
                         </div>
                         {loading && <p>Loading...</p>}
                         {error && <p style={{ color: 'red' }}>{error}</p>}
-                        <ul className="studentsList">
-                            {subjects.map((subject, idx) => (
-                                <li key={`${subject}-${idx}`} className="studentItem">
-                                    <div className="studentRow">
-                                        <span>{subject}</span>
-                                        <div className="rowRight">
-                                            <div className="rowActions">
+                        <div className="subjectsTable">
+                            <table className="subjectsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Code</th>
+                                        <th>Classes</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {subjects.map((subject) => (
+                                        <tr key={subject.id}>
+                                            <td className="subjectName">{subject.name}</td>
+                                            <td className="subjectCode">{subject.code}</td>
+                                            <td className="subjectClasses">{subject.classes || 'No classes assigned'}</td>
+                                            <td className="subjectActions">
                                                 <button className="secondaryBtn" onClick={() => openUpdateModal(subject)}>Update</button>
                                                 <button className="dangerBtn" onClick={() => openDeleteModal(subject)}>Delete</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
@@ -197,13 +210,38 @@ const ManageSubjects = () =>{
                                 <form onSubmit={handleSubmit} className="modalForm">
                                     <h3>{modalMode === 'add' ? 'Add Subject' : 'Update Subject'}</h3>
                                     <label>
-                                        <span>Subject</span>
+                                        <span>Subject Name</span>
                                         <input
                                             type="text"
-                                            value={formSubject}
-                                            onChange={(e) => setFormSubject(e.target.value)}
+                                            value={formName}
+                                            onChange={(e) => setFormName(e.target.value)}
                                             required
                                         />
+                                    </label>
+                                    <label>
+                                        <span>Subject Code</span>
+                                        <input
+                                            type="text"
+                                            value={formCode}
+                                            onChange={(e) => setFormCode(e.target.value.toUpperCase())}
+                                            placeholder="e.g., MATH, ENG, SCI"
+                                            required
+                                        />
+                                    </label>
+                                    <label>
+                                        <span>Assign to Classes</span>
+                                        <div className="classCheckboxes">
+                                            {classes.map(className => (
+                                                <label key={className} className="checkboxLabel">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={formClasses.includes(className)}
+                                                        onChange={() => handleClassToggle(className)}
+                                                    />
+                                                    <span>{className}</span>
+                                                </label>
+                                            ))}
+                                        </div>
                                     </label>
                                     <div className="modalActions">
                                         <button type="button" className="secondaryBtn" onClick={closeModal}>Cancel</button>
@@ -213,7 +251,7 @@ const ManageSubjects = () =>{
                             ) : (
                                 <div className="modalForm">
                                     <h3>Delete Subject</h3>
-                                    <p>Are you sure you want to delete <strong>{editingSubject}</strong> from {selectedClass}?</p>
+                                    <p>Are you sure you want to delete <strong>{editingSubject?.name}</strong> ({editingSubject?.code})?</p>
                                     <div className="modalActions">
                                         <button type="button" className="secondaryBtn" onClick={closeModal}>Cancel</button>
                                         <button type="button" className="dangerBtn" onClick={handleSubmit}>Delete</button>

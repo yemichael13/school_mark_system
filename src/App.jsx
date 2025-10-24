@@ -8,6 +8,7 @@ import AdminDashboard from "./admin/AdminDashboard";
 import ManageStudents from "./admin/ManageStudents";
 import ManageSubjecs from "./admin/ManageSubjects";
 import ManageTeachers from "./admin/ManageTeachers";
+import ViewMarks from "./admin/ViewMarks";
 import { AuthProvider, useAuth } from "./AuthContext";
 
 
@@ -32,6 +33,7 @@ const App = () => {
             <Route path="/ManageStudents" element={<RequireAuth role="admin"><ManageStudents /></RequireAuth>} />
             <Route path="/ManageSubjects" element={<RequireAuth role="admin"><ManageSubjecs /></RequireAuth>} />
             <Route path="/ManageTeachers" element={<RequireAuth role="admin"><ManageTeachers /></RequireAuth>} />
+            <Route path="/ViewMarks" element={<RequireAuth role="admin"><ViewMarks /></RequireAuth>} />
           </Routes>
         </div>
       </Router>

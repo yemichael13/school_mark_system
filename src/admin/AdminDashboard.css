@@ -66,6 +66,13 @@
 .adminNav button:hover{
     transform: translateY(-5px);
 }
+.adminNav .btn5{
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: bold;
+    border: none;
+}
+
 .adminNav .btn4{
     background-color: red;
     color: white;

@@ -1,0 +1,176 @@
+.viewMarks {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.marksPanel {
+    text-align: left;
+}
+
+.panelHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.filterControls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.termFilter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.termFilter label {
+    font-weight: 500;
+    color: #374151;
+}
+
+.termSelect {
+    padding: 0.375rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    background: white;
+    font-size: 0.875rem;
+    min-width: 120px;
+}
+
+.refreshBtn {
+    background: #10b981;
+    color: #fff;
+    border: none;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background-color 0.2s;
+}
+
+.refreshBtn:hover {
+    background: #059669;
+}
+
+.tableWrap {
+    overflow-x: auto;
+    max-width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    background: white;
+}
+
+.marksTable {
+    width: 100%;
+    min-width: 800px;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.marksTable th,
+.marksTable td {
+    border: 1px solid #e5e7eb;
+    padding: 0.75rem;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.marksTable thead th {
+    background: #f3f4f6;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    color: #374151;
+}
+
+.marksTable tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+.studentCell {
+    font-weight: 600;
+    color: #111827;
+    min-width: 120px;
+}
+
+.classCell {
+    color: #6b7280;
+    min-width: 80px;
+}
+
+.subjectCell {
+    color: #374151;
+    min-width: 100px;
+}
+
+.termCell {
+    text-align: center;
+    min-width: 80px;
+    font-weight: 500;
+}
+
+.markCell {
+    text-align: center;
+    font-weight: 600;
+    color: #111827;
+    min-width: 60px;
+}
+
+.gradeCell {
+    text-align: center;
+    font-weight: 600;
+    color: #059669;
+    min-width: 60px;
+}
+
+.teacherCell {
+    color: #6b7280;
+    min-width: 120px;
+}
+
+.dateCell {
+    color: #6b7280;
+    min-width: 100px;
+    font-size: 0.875rem;
+}
+
+.noData {
+    text-align: center;
+    color: #6b7280;
+    font-style: italic;
+    padding: 2rem;
+    background: #f9fafb;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .panelHeader {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .filterControls {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .marksTable {
+        min-width: 600px;
+    }
+    
+    .marksTable th,
+    .marksTable td {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+}

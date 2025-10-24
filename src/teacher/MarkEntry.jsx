@@ -92,6 +92,7 @@ const MarkEntry = () => {
 
     const [selectedClass, setSelectedClass] = useState('All');
     const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+    const [selectedTerm, setSelectedTerm] = useState('Term1');
 
     // marks[studentId][subject] = number|string
     const [marks, setMarks] = useState({});
@@ -102,10 +103,14 @@ const MarkEntry = () => {
     ), [selectedClass]);
 
     const availableSubjects = useMemo(() => {
-        // For now, show all subjects regardless of class
-        // In a real app, you might want to filter by class
-        return subjects;
-    }, [subjects]);
+        if (selectedClass === 'All') {
+            return subjects;
+        }
+        // Filter subjects by selected class
+        return subjects.filter(subject => 
+            subject.classes && subject.classes.includes(selectedClass)
+        );
+    }, [subjects, selectedClass]);
 
     const handleMarkChange = (studentId, subjectId, value) => {
         const numeric = value === '' ? '' : Number(value);
@@ -148,13 +153,13 @@ const MarkEntry = () => {
         setResults(newResults);
     };
 
-    async function persistMarks(term = 'Term1'){
+    async function persistMarks(){
         try {
             const payload = [];
             Object.entries(marks).forEach(([studentId, subjToMark]) => {
                 Object.entries(subjToMark).forEach(([subjectId, mark]) => {
                     if (typeof mark === 'number') {
-                        payload.push({ student_id: Number(studentId), subject_id: Number(subjectId), term, mark });
+                        payload.push({ student_id: Number(studentId), subject_id: Number(subjectId), term: selectedTerm, mark });
                     }
                 });
             });
@@ -199,7 +204,21 @@ const MarkEntry = () => {
                     <div className="studentsPanel">
                         <div className="markEntryHeader">
                             <h3>{selectedClass === 'All' ? 'All Students' : `${selectedClass} - Mark Entry`}</h3>
-                            <button type="button" className="calcBtn" onClick={calculateResults}>Calculate</button>
+                            <div className="headerControls">
+                                <div className="termSelector">
+                                    <label htmlFor="termSelect">Term:</label>
+                                    <select 
+                                        id="termSelect"
+                                        value={selectedTerm} 
+                                        onChange={(e) => setSelectedTerm(e.target.value)}
+                                        className="termSelect"
+                                    >
+                                        <option value="Term1">Term 1</option>
+                                        <option value="Term2">Term 2</option>
+                                    </select>
+                                </div>
+                                <button type="button" className="calcBtn" onClick={calculateResults}>Calculate</button>
+                            </div>
                         </div>
                         <div className="tableWrap">
                             <table className="markTable">
@@ -207,7 +226,12 @@ const MarkEntry = () => {
                                     <tr>
                                         <th>Student</th>
                                         {availableSubjects.map(subj => (
-                                            <th key={subj.id}>{subj.name}</th>
+                                            <th key={subj.id} title={subj.name}>
+                                                <div className="subjectHeader">
+                                                    <span className="subjectName">{subj.name}</span>
+                                                    <span className="subjectCode">{subj.code}</span>
+                                                </div>
+                                            </th>
                                         ))}
                                         <th>Sum</th>
                                         <th>Average</th>
